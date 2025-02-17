@@ -1,0 +1,38 @@
+import random
+
+class NumberRange:
+    def __init__(self):
+        self.start = 0
+        self.end = 0
+    
+    def get_range(self):
+        self.start = int(input("Enter the start number: "))
+        self.end = int(input("Enter the end number: "))
+        print(f"Your selected range: {self.start} to {self.end}")
+
+class RandomNumber(NumberRange):
+    def __init__(self):
+        super().__init__()
+        self.random_number = 0
+    
+    def generate_random(self):
+        self.random_number = random.randint(self.start, self.end)
+        print("A random number has been chosen! Now you need to guess it.")
+
+class Game(RandomNumber):
+    def __init__(self):
+        super().__init__()
+     
+    def play(self):
+        self.get_range()
+        self.generate_random()
+        guess = int(input(f"Guess the number between {self.start} and {self.end}: "))
+        attempts = 1
+        while guess != self.random_number:
+            if guess < self.random_number:
+                print("Your guess is smaller than the random number.")
+            else:
+                print("Your guess is larger than the random number.")
+            guess = int(input("Guess again: "))
+            attempts += 1
+        print(f"Congratulations! You guessed the correct number {self.random_number}. Number of attempts: {attempts}")
