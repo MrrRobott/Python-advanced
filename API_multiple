@@ -1,0 +1,25 @@
+import requests
+import json
+
+class Fetcher:
+    def get_data(self, url):
+        response = requests.get(url)
+        return response.json()
+
+class Extractor(Fetcher):
+    def extract(self, data):
+        return [{'name': item['name'], 'price': item['price']} for item in data if 'name' in item and 'price' in item]
+
+class Saver(Extractor):
+    def save(self, data, filename):
+        with open(filename, 'w') as file:
+            json.dump(data, file, indent=4)
+
+if name == "main":
+    url = input("Enter the API URL: ")
+    filename = "output.json"
+    saver = Saver()
+    data = saver.get_data(url)
+    extracted_data = saver.extract(data)
+    saver.save(extracted_data, filename)
+    print(f"Data has been saved to {filename}")
