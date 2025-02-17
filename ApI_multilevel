@@ -1,0 +1,29 @@
+import requests
+import json
+
+class Fetcher:
+    def get_data(self, url):
+        response = requests.get(url)
+        return response.json()
+
+class Extractor:
+    def extract(self, data):
+        return [{'name': item['name'], 'price': item['price']} for item in data if 'name' in item and 'price' in item]
+
+class Saver:
+    def save(self, data, filename):
+        with open(filename, 'w') as file:
+            json.dump(data, file, indent=4)
+
+class MyProcessor(Fetcher, Extractor, Saver):
+    def process(self, url, filename):
+        data = self.get_data(url)
+        extracted_data = self.extract(data)
+        self.save(extracted_data, filename)
+
+if name == "main":
+    url = input("Enter the API URL: ")
+    filename = "output.json"
+    processor = MyProcessor()
+    processor.process(url, filename)
+    print(f"Data has been saved to {filename}")
