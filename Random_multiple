@@ -1,0 +1,39 @@
+import random
+
+class NumberRange:
+    def init(self):
+        self.start = 0
+        self.end = 0
+    
+    def get_range(self):
+        self.start = int(input("enter number"))
+        self.end = int(input("enter number "))
+        print(f"guess number between: {self.start} and {self.end}")
+
+class RandomNumber:
+    def init(self):
+        self.random_number = 0
+    
+    def generate_random(self, start, end):
+        self.random_number = random.randint(start, end)
+        print("guess the number")
+
+
+class Game(NumberRange, RandomNumber):
+    def init(self):
+        NumberRange.init(self)
+        RandomNumber.init(self)
+    
+    def play(self):
+        self.get_range()         
+        self.generate_random(self.start, self.end)  
+        guess = int(input(f"guess the number between {self.start} and {self.end}: "))
+        attempts = 1
+        while guess != self.random_number:
+            if guess < self.random_number:
+                print("your number is less")
+            else:
+                print("your number is more")
+            guess = int(input("guess again: "))
+            attempts += 1
+        print(f" congrats you guessed right:{self.random_number} attempts {attempts}")
