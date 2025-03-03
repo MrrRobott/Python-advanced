@@ -1,0 +1,67 @@
+from fastapi import FastAPI
+import json
+import requests
+import csv
+from openpyxl import Workbook
+
+app = FastAPI()
+
+gold_api_url = "http://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency.json"
+weather_api_url = "https://api.openweathermap.org/data/2.5/weather?q=Tehran&appid=YOUR_API_KEY&units=metric"
+
+json_file = 'data.json'
+csv_file = 'data.csv'
+excel_file = 'data.xlsx'
+
+def get_gold_dollar_data():
+    response = requests.get(gold_api_url)
+    data = response.json()
+    gold_price = data[0]['price']
+    dollar_price = data[1]['price']
+    return gold_price, dollar_price
+
+def get_weather_data():
+    response = requests.get(weather_api_url)
+    data = response.json()
+    temperature = data['main']['temp']
+    weather = data['weather'][0]['description']
+    return temperature, weather
+
+def save_data_to_json(gold_price, dollar_price, temperature, weather):
+    data = {
+        'gold_price': gold_price,
+        'dollar_price': dollar_price,
+        'temperature': temperature,
+        'weather': weather
+    }
+    with open(json_file, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+def save_data_to_csv(gold_price, dollar_price, temperature, weather):
+    with open(csv_file, mode='w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['gold_price', 'dollar_price', 'temperature', 'weather'])
+        writer.writerow([gold_price, dollar_price, temperature, weather])
+
+def save_data_to_excel(gold_price, dollar_price, temperature, weather):
+    wb = Workbook()
+    ws = wb.active
+    ws.append(['gold_price', 'dollar_price', 'temperature', 'weather'])
+    ws.append([gold_price, dollar_price, temperature, weather])
+    wb.save(excel_file)
+
+@app.get("/api/data")
+def get_data():
+    gold_price, dollar_price = get_gold_dollar_data()
+    temperature, weather = get_weather_data()
+
+    save_data_to_json(gold_price, dollar_price, temperature, weather)
+    save_data_to_csv(gold_price, dollar_price, temperature, weather)
+    save_data_to_excel(gold_price, dollar_price, temperature, weather)
+
+    return {
+        'gold_price': gold_price,
+        'dollar_price': dollar_price,
+        'temperature': temperature,
+        'weather': weather
+    }
