@@ -1,0 +1,44 @@
+import requests
+import json
+
+class Api:
+    def init(self, url):
+        self.url = url
+    
+    def get(self):
+        try:
+            response = requests.get(self.url)
+            return response.json()
+        except:
+            return []
+
+class Extractor:
+    def init(self, data):
+        self.data = data
+    
+    def extract(self):
+        result = []
+        for item in self.data:
+            date = item.get('Date', '')
+            price = item.get('Price', '')
+            name = item.get('Name', '')
+            result.append({'Date': date, 'Price': price, 'Name': name})
+        return result
+
+class Writer:
+    def init(self, filename):
+        self.filename = filename
+    
+    def save(self, data):
+        with open(self.filename, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+
+url = 'http://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency.json'
+api = Api(url)
+data = api.get()
+
+ext = Extractor(data)
+result = ext.extract()
+
+writer = Writer('gold_prices.json')
+writer.save(result)
