@@ -1,0 +1,61 @@
+from fastapi import FastAPI
+import json
+
+app = FastAPI()
+
+DATA_FILE = 'series_data.json'
+
+default_series_data = [
+    {"name": "Mr robot", "seasons": 4, "episodes": 45, "rating": 8.5},
+    {"name": "Prison break", "seasons": 5, "episodes": 90, "rating": 8.3},
+    {"name": "Better call saul", "seasons": 6, "episodes": 63, "rating": 9.0},
+    {"name": "Breaking bad", "seasons": 5, "episodes": 62, "rating": 9.5},
+    {"name": "Sopranos", "seasons": 6, "episodes": 86, "rating": 9.2}
+]
+
+def read_data():
+    try:
+        with open(DATA_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return default_series_data
+
+def save_data(data):
+    with open(DATA_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+@app.get("/api/series")
+def get_series():
+    data = read_data()
+    return data
+
+@app.post("/api/series")
+def add_or_update_series(name: str, seasons: int, episodes: int, rating: float):
+    data = read_data()
+
+    for item in data:
+        if item['name'].lower() == name.lower():
+            item['seasons'] = seasons
+            item['episodes'] = episodes
+            item['rating'] = rating
+            save_data(data)
+            return {"message": "Series updated successfully"}
+    
+    new_series = {"name": name, "seasons": seasons, "episodes": episodes, "rating": rating}
+    data.append(new_series)
+    save_data(data)
+    return {"message": "Series added successfully"}
+
+@app.put("/api/series/{name}")
+def update_series(name: str, seasons: int, episodes: int, rating: float):
+    data = read_data()
+
+    for item in data:
+        if item['name'].lower() == name.lower():
+            item['seasons'] = seasons
+            item['episodes'] = episodes
+            item['rating'] = rating
+            save_data(data)
+            return {"message": "Series updated successfully"}
+
+    return {"message": "Series not found"}
